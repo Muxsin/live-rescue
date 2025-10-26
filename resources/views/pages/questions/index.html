@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -11,9 +12,14 @@
 
 <body>
     {{ template "_header" }}
-     <div id="questions"></div>
 
-     <script>
+    <a href="/questions/create">
+        <button>Ask Question</button>
+    </a>
+
+    <div id="questions"></div>
+
+    <script>
         const questionsDiv = document.getElementById("questions");
 
         async function fetchQuestions() {
@@ -28,19 +34,21 @@
 
                 for (let i = 0; i < questions.length; i++) {
                     const question = questions[i];
-                    
+
                     questionsDiv.innerHTML += `
-                        <div style="border: 1px solid #ccc; padding: 20px; margin: 10px;">
-                            <h2>${question.Title}</h2>
-                            <p>${question.Description}</p>
-                            ${question.ImageURL ? 
+                        <a href="http://localhost:8080/questions/${question.Id}">
+                            <div style="border: 1px solid #ccc; padding: 20px; margin: 10px;">
+                                <h2>${question.Title}</h2>
+                                <p>${question.Description}</p>
+                                ${question.ImageURL ?
                                 `<img src="http://localhost:8080${question.ImageURL}" 
-                                      alt="${question.Title}" 
-                                      style="max-width: 300px; display: block;"
-                                      onerror="console.error('Failed to load image:', this.src)">` : 
+                                        alt="${question.Title}" 
+                                        style="max-width: 300px; display: block;"
+                                        onerror="console.error('Failed to load image:', this.src)">` :
                                 '<p>No image available</p>'
                             }
-                        </div>
+                            </div>
+                        </a>
                     `;
                 }
             } catch (error) {
@@ -52,5 +60,6 @@
         fetchQuestions();
     </script>
 </body>
+
 </html>
 {{ end }}

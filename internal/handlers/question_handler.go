@@ -53,6 +53,7 @@ func (h *questionHandler) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type QuestionResponse struct {
+		ID          uint   `json:"Id"`
 		Title       string `json:"Title"`
 		Description string `json:"Description"`
 		ImageURL    string `json:"ImageURL"`
@@ -63,6 +64,7 @@ func (h *questionHandler) List(w http.ResponseWriter, r *http.Request) {
 		imageURL := h.filePathToURL(q.ImagePath)
 
 		response = append(response, QuestionResponse{
+			ID:          q.ID,
 			Title:       q.Title,
 			Description: q.Description,
 			ImageURL:    imageURL,
@@ -116,4 +118,40 @@ func (h *questionHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (h *questionHandler) Get(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil || id <= 0 {
+		http.Error(w, "ID parameter is missing", http.StatusBadRequest)
+		return
+	}
+
+	question, err := h.questionRepo.GetOne(uint(id))
+
+	if err != nil {
+		log.Printf("Getting question failed: %v", err.Error())
+		http.Error(w, "Getting question failed", http.StatusInternalServerError)
+		return
+	}
+
+	type QuestionResponse struct {
+		ID          uint   `json:"Id"`
+		Title       string `json:"Title"`
+		Description string `json:"Description"`
+		ImageURL    string `json:"ImageURL"`
+	}
+
+	var response QuestionResponse
+	imageURL := h.filePathToURL(question.ImagePath)
+
+	response = QuestionResponse{
+		ID:          question.ID,
+		Title:       question.Title,
+		Description: question.Description,
+		ImageURL:    imageURL,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }

@@ -38,6 +38,7 @@ func main() {
 	http.Handle("/media/", http.StripPrefix("/media/", http.FileServer(http.Dir(os.Getenv("FLAG_STORAGE_PATH")))))
 
 	http.HandleFunc("/", viewHandler.Index)
+	http.HandleFunc("/questions/{id}", questionHandler.Get)
 	http.HandleFunc("/questions/create", viewHandler.Create)
 	http.HandleFunc("/questions", questionHandler.Handle)
 
