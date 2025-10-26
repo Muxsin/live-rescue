@@ -1,20 +1,32 @@
 package handlers
 
-import "net/http"
+import (
+	"html/template"
+	"net/http"
+)
 
 type viewHandler struct {
+	template *template.Template
 }
 
-func NewView() *viewHandler {
-	return &viewHandler{}
+func NewView(template *template.Template) *viewHandler {
+	return &viewHandler{
+		template: template,
+	}
 }
 
 func (h *viewHandler) Index(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "text/html")
-	http.ServeFile(w, r, "./resources/views/questions/index.html")
+	err := h.template.ExecuteTemplate(w, "index", nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *viewHandler) Create(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "text/html")
-	http.ServeFile(w, r, "./resources/views/questions/create.html")
+	err := h.template.ExecuteTemplate(w, "create", nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

@@ -1,3 +1,4 @@
+{{ define "create" }}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +9,7 @@
 </head>
 
 <body>
+    {{ template "_header" }}
     <form action="/questions" method="post" enctype="multipart/form-data">
         <h2>Ask Question</h2>
         <div>
@@ -26,3 +28,5 @@
     </form>
 </body>
 </html>
+
+{{ end }}
