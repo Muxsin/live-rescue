@@ -27,12 +27,53 @@ func NewQuestion(
 	}
 }
 
-func (h *questionHandler) Create(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+func (h *questionHandler) Handle(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		h.List(w, r)
+	case http.MethodPost:
+		h.Create(w, r)
+	default:
 		http.Error(w, "Method not allowed", http.StatusBadRequest)
 		return
 	}
+}
 
+func (h *questionHandler) filePathToURL(filePath string) string {
+	filename := filepath.Base(filePath)
+	return "/media/" + filename
+}
+
+func (h *questionHandler) List(w http.ResponseWriter, r *http.Request) {
+	questions, err := h.questionRepo.GetAll()
+	if err != nil {
+		log.Printf("Listing questions failed: %v", err.Error())
+		http.Error(w, "Listing questions failed", http.StatusInternalServerError)
+		return
+	}
+
+	type QuestionResponse struct {
+		Title       string `json:"Title"`
+		Description string `json:"Description"`
+		ImageURL    string `json:"ImageURL"`
+	}
+
+	var response []QuestionResponse
+	for _, q := range questions {
+		imageURL := h.filePathToURL(q.ImagePath)
+
+		response = append(response, QuestionResponse{
+			Title:       q.Title,
+			Description: q.Description,
+			ImageURL:    imageURL,
+		})
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func (h *questionHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
 		return
@@ -74,6 +115,5 @@ func (h *questionHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(question)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

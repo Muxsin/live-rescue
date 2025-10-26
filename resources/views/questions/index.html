@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go file upload</title>
+</head>
+
+<body>
+     <div id="questions"></div>
+
+     <script>
+        const questionsDiv = document.getElementById("questions");
+
+        async function fetchQuestions() {
+            try {
+                const response = await fetch("http://localhost:8080/questions");
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const questions = await response.json();
+
+                questionsDiv.innerHTML = '';
+
+                for (let i = 0; i < questions.length; i++) {
+                    const question = questions[i];
+                    
+                    questionsDiv.innerHTML += `
+                        <div style="border: 1px solid #ccc; padding: 20px; margin: 10px;">
+                            <h2>${question.Title}</h2>
+                            <p>${question.Description}</p>
+                            ${question.ImageURL ? 
+                                `<img src="http://localhost:8080${question.ImageURL}" 
+                                      alt="${question.Title}" 
+                                      style="max-width: 300px; display: block;"
+                                      onerror="console.error('Failed to load image:', this.src)">` : 
+                                '<p>No image available</p>'
+                            }
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                questionsDiv.innerHTML = `<p style="color: red;">Error loading questions: ${error.message}</p>`;
+            }
+        }
+
+        fetchQuestions();
+    </script>
+</body>
+</html>

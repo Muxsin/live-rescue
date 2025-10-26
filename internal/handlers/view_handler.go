@@ -11,5 +11,10 @@ func NewView() *viewHandler {
 
 func (h *viewHandler) Index(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/html")
-	http.ServeFile(w, r, "./resources/views/index.html")
+	http.ServeFile(w, r, "./resources/views/questions/index.html")
+}
+
+func (h *viewHandler) Create(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "text/html")
+	http.ServeFile(w, r, "./resources/views/questions/create.html")
 }

@@ -19,3 +19,14 @@ func NewQuestion(db *gorm.DB) *QuestionRepository {
 func (r *QuestionRepository) Create(question *models.Question) error {
 	return r.Db.Create(question).Error
 }
+
+func (r *QuestionRepository) GetAll() ([]models.Question, error) {
+	var questions []models.Question
+
+	result := r.Db.Find(&questions)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return questions, nil
+}

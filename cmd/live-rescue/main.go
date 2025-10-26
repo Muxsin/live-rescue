@@ -6,6 +6,7 @@ import (
 	"live-rescue/internal/repositories"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/joho/godotenv"
 )
@@ -27,8 +28,11 @@ func main() {
 	indexHandler := handlers.NewView()
 	questionHandler := handlers.NewQuestion(mediaRepository, questionRepository)
 
+	http.Handle("/media/", http.StripPrefix("/media/", http.FileServer(http.Dir(os.Getenv("FLAG_STORAGE_PATH")))))
+
 	http.HandleFunc("/", indexHandler.Index)
-	http.HandleFunc("/questions", questionHandler.Create)
+	http.HandleFunc("/questions/create", indexHandler.Create)
+	http.HandleFunc("/questions", questionHandler.Handle)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
